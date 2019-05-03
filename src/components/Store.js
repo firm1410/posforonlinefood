@@ -206,10 +206,8 @@ class Store extends Component {
     this.setState({ term: "" });
   }
   render() {
-    let head;
     this.state.cartRaw.map(carts => {
-      console.log(carts);
-       return( <SetCart cartSet={carts} addToCart={this.handleAddToCartNDB} />);
+       this.handleAddToCart(carts);
     });
     return (
       <div className="Store">
