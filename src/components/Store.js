@@ -44,7 +44,7 @@ class Store extends Component {
   getCart() {
     fetch("http://localhost:3010/cart?no=" + this.props.number)
       .then(response => response.json())
-      .then(response => this.setState({ cart: response.data }))
+      .then(response => this.setState({ cartRaw: response.data }))
       .catch(err => console.error(err));
   }
   getOrder() {
@@ -173,10 +173,13 @@ class Store extends Component {
     this.setState({ term: "" });
   }
   render() {
-    console.log(this.state.cart);
-    console.log(Object.getOwnPropertyNames(this.state.cart));
+    let head;
+    this.state.cartRaw.map(cart => {
+      head = <SetCart cartSet={cart} addToCart={this.handleAddToCart} />;
+    });
     return (
       <div className="Store">
+        {head}
         <Header
           cartBounce={this.state.cartBounce}
           total={this.state.totalAmount}
