@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Header from "./Header";
 import Products from "./Products";
 import Footer from "./Footer";
+import SetCart from "./SetCart";
 import QuickView from "./QuickView";
 
 class Store extends Component {
@@ -111,6 +112,38 @@ class Store extends Component {
         productQty
     ).catch(err => console.error(err));
   }
+    // Add to Cart
+    handleAddToCartNDB(selectedProducts) {
+      let cartItem = this.state.cart;
+      let productID = selectedProducts.id;
+      let productQty = selectedProducts.quantity;
+      if (this.checkProduct(productID)) {
+        let index = cartItem.findIndex(x => x.id == productID);
+        cartItem[index].quantity =
+          Number(cartItem[index].quantity) + Number(productQty);
+        this.setState({
+          cart: cartItem
+        });
+      } else {
+        cartItem.push(selectedProducts);
+      }
+      this.setState({
+        cart: cartItem,
+        cartBounce: true
+      });
+      setTimeout(
+        function() {
+          this.setState({
+            cartBounce: false,
+            quantity: 1
+          });
+        }.bind(this),
+        1000
+      );
+      this.sumTotalItems(this.state.cart);
+      this.sumTotalAmount(this.state.cart);
+    }
+
   handleRemoveProduct(id, e) {
     let cart = this.state.cart;
     let index = cart.findIndex(x => x.id == id);
@@ -174,12 +207,12 @@ class Store extends Component {
   }
   render() {
     let head;
-    this.state.cartRaw.map(cart => {
-      head = <SetCart cartSet={cart} addToCart={this.handleAddToCart} />;
+    this.state.cartRaw.map(carts => {
+      console.log(carts);
+       return( <SetCart cartSet={carts} addToCart={this.handleAddToCartNDB} />);
     });
     return (
       <div className="Store">
-        {head}
         <Header
           cartBounce={this.state.cartBounce}
           total={this.state.totalAmount}
