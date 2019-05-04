@@ -23,7 +23,7 @@ class Product extends Component {
         }
       },
       function() {
-        this.props.addToCart(this.state.selectedProduct);
+        this.props.addToCart(this.state.selectedProduct,true);
       }
     );
     this.setState(

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Header from "./Header";
 import Products from "./Products";
 import Footer from "./Footer";
-import SetCart from "./SetCart";
 import QuickView from "./QuickView";
 
 class Store extends Component {
@@ -59,8 +58,12 @@ class Store extends Component {
     this.getProducts();
     this.getCart();
     this.getOrder();
+    console.log(this.state.cartRaw);
+    this.state.cartRaw.map(set => {
+      console.log(set);
+      this.handleAddToCart(set, false);
+    });
   }
-
   // Search by Keyword
   handleSearch(event) {
     this.setState({ term: event.target.value });
@@ -74,7 +77,7 @@ class Store extends Component {
     this.setState({ category: event.target.value });
   }
   // Add to Cart
-  handleAddToCart(selectedProducts) {
+  handleAddToCart(selectedProducts,isdb) {
     let cartItem = this.state.cart;
     let productID = selectedProducts.id;
     let productQty = selectedProducts.quantity;
@@ -103,6 +106,7 @@ class Store extends Component {
     );
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
+    if(isdb){
     fetch(
       "http://localhost:3010/cart/add?no=" +
         this.props.number +
@@ -111,38 +115,8 @@ class Store extends Component {
         '"&num=' +
         productQty
     ).catch(err => console.error(err));
-  }
-    // Add to Cart
-    handleAddToCartNDB(selectedProducts) {
-      let cartItem = this.state.cart;
-      let productID = selectedProducts.id;
-      let productQty = selectedProducts.quantity;
-      if (this.checkProduct(productID)) {
-        let index = cartItem.findIndex(x => x.id == productID);
-        cartItem[index].quantity =
-          Number(cartItem[index].quantity) + Number(productQty);
-        this.setState({
-          cart: cartItem
-        });
-      } else {
-        cartItem.push(selectedProducts);
-      }
-      this.setState({
-        cart: cartItem,
-        cartBounce: true
-      });
-      setTimeout(
-        function() {
-          this.setState({
-            cartBounce: false,
-            quantity: 1
-          });
-        }.bind(this),
-        1000
-      );
-      this.sumTotalItems(this.state.cart);
-      this.sumTotalAmount(this.state.cart);
     }
+  }
 
   handleRemoveProduct(id, e) {
     let cart = this.state.cart;
@@ -206,9 +180,7 @@ class Store extends Component {
     this.setState({ term: "" });
   }
   render() {
-    this.state.cartRaw.map(carts => {
-       this.handleAddToCart(carts);
-    });
+    console.log(this.state.cartRaw);
     return (
       <div className="Store">
         <Header
