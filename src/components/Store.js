@@ -86,7 +86,6 @@ class Store extends Component {
     let cartItem = this.state.cart;
     let productID = selectedProducts.id;
     let productQty = selectedProducts.quantity;
-
     if (isdb) {
       if (this.checkProduct(productID)) {
         let index = cartItem.findIndex(x => x.id == productID);
@@ -108,32 +107,34 @@ class Store extends Component {
             productQty
         ).catch(err => console.error(err));
       }
-      if (this.checkProduct(productID)) {
-        let index = cartItem.findIndex(x => x.id == productID);
-        cartItem[index].quantity =
-          Number(cartItem[index].quantity) + Number(productQty);
-        this.setState({
-          cart: cartItem
-        });
-      } else {
-        cartItem.push(selectedProducts);
-      }
-      this.setState({
-        cart: cartItem,
-        cartBounce: true
-      });
-      setTimeout(
-        function() {
-          this.setState({
-            cartBounce: false,
-            quantity: 1
-          });
-        }.bind(this),
-        1000
-      );
-      this.sumTotalItems(this.state.cart);
-      this.sumTotalAmount(this.state.cart);
     }
+    console.log(selectedProducts);
+    if (this.checkProduct(productID)) {
+      let index = cartItem.findIndex(x => x.id == productID);
+      cartItem[index].quantity =
+        Number(cartItem[index].quantity) + Number(productQty);
+      this.setState({
+        cart: cartItem
+      });
+    } else {
+      cartItem.push(selectedProducts);
+    }
+    this.setState({
+      cart: cartItem,
+      cartBounce: true
+    });
+    setTimeout(
+      function() {
+        this.setState({
+          cartBounce: false,
+          quantity: 1
+        });
+      }.bind(this),
+      1000
+    );
+    this.sumTotalItems(this.state.cart);
+    this.sumTotalAmount(this.state.cart);
+    console.log(this.state.cart);
   }
 
   handleRemoveProduct(id, e) {
@@ -145,6 +146,13 @@ class Store extends Component {
     });
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
+    fetch(
+      "http://localhost:3010/cart/del?no=" +
+        this.props.number +
+        '&food="' +
+        id +
+        '"'
+    ).catch(err => console.error(err));
     e.preventDefault();
   }
   checkProduct(productID) {

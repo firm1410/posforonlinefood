@@ -103,7 +103,7 @@ app.get("/cart/add", (req, res) => { //add cart
 });
 
 app.get("/cart/up", (req, res) => { //update cart
-  let {  no, food, num } = req.query;
+  let {  no,food, num } = req.query;
   let sql ="UPDATE cart SET order_quantity = "+num+" WHERE food_id ="+ food+" AND table_no ="+no;
   db.query(sql, (err, results) => {
     if (err) {
