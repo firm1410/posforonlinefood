@@ -101,6 +101,21 @@ app.get("/cart/add", (req, res) => { //add cart
     }
   });
 });
+
+app.get("/cart/up", (req, res) => { //update cart
+  let {  no, food, num } = req.query;
+  let sql ="UPDATE cart SET order_quantity = "+num+" WHERE food_id ="+ food+" AND table_no ="+no;
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.send(err);
+    } else {
+      const tab = res.json({
+        data: results
+      });
+      return tab;
+    }
+  });
+});
 app.get("/cart/del", (req, res) => { //del cart
   let { no, food } = req.query;
   let sql =

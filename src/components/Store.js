@@ -44,7 +44,11 @@ class Store extends Component {
   getCart() {
     fetch("http://localhost:3010/cart?no=" + this.props.number)
       .then(response => response.json())
-      .then(response => this.setState({ cartRaw: response.data }))
+      .then(response =>
+        response.data.forEach(dat => {
+          this.handleAddToCart(dat, false);
+        })
+      )
       .catch(err => console.error(err));
   }
   getOrder() {
@@ -58,10 +62,11 @@ class Store extends Component {
     this.getProducts();
     this.getCart();
     this.getOrder();
-    console.log(this.state.cartRaw);
-    this.state.cartRaw.map(set => {
-      console.log(set);
-      this.handleAddToCart(set, false);
+  }
+  componentDidMount() {
+    let carthold = this.state.cartRaw;
+    carthold.map(set => {
+      this.handleAddToCart.push(set, false);
     });
   }
   // Search by Keyword
@@ -77,44 +82,57 @@ class Store extends Component {
     this.setState({ category: event.target.value });
   }
   // Add to Cart
-  handleAddToCart(selectedProducts,isdb) {
+  handleAddToCart(selectedProducts, isdb) {
     let cartItem = this.state.cart;
     let productID = selectedProducts.id;
     let productQty = selectedProducts.quantity;
-    if (this.checkProduct(productID)) {
-      let index = cartItem.findIndex(x => x.id == productID);
-      cartItem[index].quantity =
-        Number(cartItem[index].quantity) + Number(productQty);
-      this.setState({
-        cart: cartItem
-      });
-    } else {
-      cartItem.push(selectedProducts);
-    }
-    this.setState({
-      cart: cartItem,
-      cartBounce: true
-    });
-    setTimeout(
-      function() {
+
+    if (isdb) {
+      if (this.checkProduct(productID)) {
+        let index = cartItem.findIndex(x => x.id == productID);
+        fetch(
+          "http://localhost:3010/cart/up?no=" +
+            this.props.number +
+            '&food="' +
+            productID +
+            '"&num=' +
+            Number(cartItem[index].quantity + productQty)
+        ).catch(err => console.error(err));
+      } else {
+        fetch(
+          "http://localhost:3010/cart/add?no=" +
+            this.props.number +
+            '&food="' +
+            productID +
+            '"&num=' +
+            productQty
+        ).catch(err => console.error(err));
+      }
+      if (this.checkProduct(productID)) {
+        let index = cartItem.findIndex(x => x.id == productID);
+        cartItem[index].quantity =
+          Number(cartItem[index].quantity) + Number(productQty);
         this.setState({
-          cartBounce: false,
-          quantity: 1
+          cart: cartItem
         });
-      }.bind(this),
-      1000
-    );
-    this.sumTotalItems(this.state.cart);
-    this.sumTotalAmount(this.state.cart);
-    if(isdb){
-    fetch(
-      "http://localhost:3010/cart/add?no=" +
-        this.props.number +
-        '&food="' +
-        productID +
-        '"&num=' +
-        productQty
-    ).catch(err => console.error(err));
+      } else {
+        cartItem.push(selectedProducts);
+      }
+      this.setState({
+        cart: cartItem,
+        cartBounce: true
+      });
+      setTimeout(
+        function() {
+          this.setState({
+            cartBounce: false,
+            quantity: 1
+          });
+        }.bind(this),
+        1000
+      );
+      this.sumTotalItems(this.state.cart);
+      this.sumTotalAmount(this.state.cart);
     }
   }
 
@@ -180,7 +198,6 @@ class Store extends Component {
     this.setState({ term: "" });
   }
   render() {
-    console.log(this.state.cartRaw);
     return (
       <div className="Store">
         <Header
