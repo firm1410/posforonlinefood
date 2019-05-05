@@ -12,8 +12,11 @@ class Header extends Component {
     this.state = {
       showCart: false,
       cart: this.props.cartItems,
-      mobileSearch: false
+      mobileSearch: false,
+      buttonText:"สั่งซื้อ",
+      isChecked:true
     };
+    this.checked = this.checked.bind(this);
   }
 
   handleCart(e) {
@@ -71,6 +74,11 @@ class Header extends Component {
   }
   homeSet() {
     this.props.homeSet();
+  }
+  checked(){
+    this.setState({isChecked:!this.state.isChecked,
+    buttonText: this.state.isChecked ? "เก็บเงิน": "สั่งซื้อ"});
+    console.log(this.state.isChecked);
   }
   render() {
     let cartItems;
@@ -213,14 +221,14 @@ class Header extends Component {
               }
               ref="cartPreview"
             >
-              <Switch isChecked={ true }/>
+              <Switch isChecked={ this.checked }/>
               <CartScrollBar>{view}</CartScrollBar>
               <div className="action-block">
                 <button
                   type="button"
                   className={this.state.cart.length > 0 ? " " : "disabled"}
                 >
-                  ORDER
+                  {this.state.buttonText}
                 </button>
               </div>
             </div>
