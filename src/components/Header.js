@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import CartScrollBar from "./CartScrollBar";
 import Counter from "./Counter";
 import EmptyCart from "../empty-states/EmptyCart";
+import Switch from "./Switch";
 import CSSTransitionGroup from "react-transition-group/CSSTransitionGroup";
 import { findDOMNode } from "react-dom";
 
@@ -132,7 +133,7 @@ class Header extends Component {
               onClick={this.handleMobileSearch.bind(this)}
             >
               <img
-                src="https://res.cloudinary.com/sivadass/image/upload/v1494756966/icons/search-green.png"
+                src="http://localhost:3010/uploads/search-green.png"
                 alt="search"
               />
             </a>
@@ -149,7 +150,7 @@ class Header extends Component {
                 onClick={this.handleSearchNav.bind(this)}
               >
                 <img
-                  src="https://res.cloudinary.com/sivadass/image/upload/v1494756030/icons/back.png"
+                  src="http://localhost:3010/uploads/back.png"
                   alt="back"
                 />
               </a>
@@ -197,7 +198,7 @@ class Header extends Component {
             >
               <img
                 className={this.props.cartBounce ? "tada" : " "}
-                src="https://res.cloudinary.com/sivadass/image/upload/v1493548928/icons/bag.png"
+                src="http://localhost:3010/uploads/bag.png"
                 alt="Cart"
               />
               {this.props.totalItems ? (
@@ -212,6 +213,7 @@ class Header extends Component {
               }
               ref="cartPreview"
             >
+              <Switch isChecked={ true }/>
               <CartScrollBar>{view}</CartScrollBar>
               <div className="action-block">
                 <button

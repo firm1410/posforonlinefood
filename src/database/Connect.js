@@ -29,7 +29,7 @@ app.use(cors());
 // Select posts
 app.get("/food", (req, res) => {  //getfood
   let sql =
-    "SELECT f.food_id AS id,f.food_name AS name,f.food_name_alt AS nameAlt,f.food_category_1 AS category1,f.food_category_2 AS category2,f.food_category_3 AS category3,f.food_price AS price,f.food_discount AS discount,f.food_img AS img FROM foods AS f";
+    "SELECT f.food_id AS id,f.food_name AS name,f.food_name_alt AS nameAlt,f.food_category_1 AS category1,f.food_category_2 AS category2,f.food_category_3 AS category3,f.food_price AS price,f.food_discount AS discount,concat('http://localhost:3010/uploads/',f.food_img) AS img FROM foods AS f";
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -74,7 +74,7 @@ app.get("/tab/add", (req, res) => { //add table
 app.get("/cart", (req, res) => { //get cart
   let { no } = req.query;
   let sql =
-    "SELECT foods.food_img AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,cart.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN cart ON foods.food_id=cart.food_id WHERE table_no=" + no;
+    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,cart.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN cart ON foods.food_id=cart.food_id WHERE table_no=" + no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);

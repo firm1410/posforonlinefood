@@ -176,6 +176,7 @@ header {
   display: none;
   background: $white;
   border: 1px solid $gray-eighty;
+  border-radius: 20px;
   &:before {
     content: "";
     position: absolute;

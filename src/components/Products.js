@@ -30,7 +30,7 @@ class Products extends Component {
             key={product.id}
             price={product.price}
             name={product.name}
-            image={"http://localhost:3010/uploads/"+product.img}
+            image={product.img}
             id={product.id}
             category={product.category1}
             termChange={this.props.termChange}
