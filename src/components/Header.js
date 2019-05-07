@@ -5,6 +5,7 @@ import EmptyCart from "../empty-states/EmptyCart";
 import Switch from "./Switch";
 import CSSTransitionGroup from "react-transition-group/CSSTransitionGroup";
 import { findDOMNode } from "react-dom";
+import { Action } from "rxjs/internal/scheduler/Action";
 
 class Header extends Component {
   constructor(props) {
@@ -13,8 +14,8 @@ class Header extends Component {
       showCart: false,
       cart: this.props.cartItems,
       mobileSearch: false,
-      buttonText:"สั่งซื้อ",
-      isChecked:true
+      buttonText: "สั่งซื้อ",
+      isChecked: true
     };
     this.checked = this.checked.bind(this);
   }
@@ -58,6 +59,22 @@ class Header extends Component {
       }
     }
   }
+  addToOrder(action) {
+    this.props.handleAction(action);
+
+    this.setState(
+      {
+        buttonText: this.state.buttonText + "สำเร็จ"
+      },
+      function() {
+        setTimeout(() => {
+          this.setState({
+            buttonText: action
+          });
+        }, 3500);
+      }
+    );
+  }
   componentDidMount() {
     document.addEventListener(
       "click",
@@ -72,16 +89,16 @@ class Header extends Component {
       true
     );
   }
-  homeSet() {
-    this.props.homeSet();
-  }
-  checked(){
-    this.setState({isChecked:!this.state.isChecked,
-    buttonText: this.state.isChecked ? "เก็บเงิน": "สั่งซื้อ"});
+  checked() {
+    this.setState({
+      isChecked: !this.state.isChecked,
+      buttonText: this.state.isChecked ? "เก็บเงิน" : "สั่งซื้อ"
+    });
     console.log(this.state.isChecked);
   }
   render() {
     let cartItems;
+    console.log(this.state.cart);
     cartItems = this.state.cart.map(product => {
       return (
         <li className="cart-item" key={product.name}>
@@ -130,7 +147,7 @@ class Header extends Component {
               className="logo"
               src="http://localhost:3010/uploads/myImage-1551886643871.png"
               alt="dairyhome Brand Logo"
-              onClick={this.homeSet.bind(this)}
+              onClick={this.props.homeSet.bind(this)}
             />
           </div>
 
@@ -157,10 +174,7 @@ class Header extends Component {
                 href="#"
                 onClick={this.handleSearchNav.bind(this)}
               >
-                <img
-                  src="http://localhost:3010/uploads/back.png"
-                  alt="back"
-                />
+                <img src="http://localhost:3010/uploads/back.png" alt="back" />
               </a>
               <input
                 type="search"
@@ -221,12 +235,13 @@ class Header extends Component {
               }
               ref="cartPreview"
             >
-              <Switch isChecked={ this.checked }/>
+              <Switch isChecked={this.checked} />
               <CartScrollBar>{view}</CartScrollBar>
               <div className="action-block">
                 <button
                   type="button"
                   className={this.state.cart.length > 0 ? " " : "disabled"}
+                  onClick={this.addToOrder.bind(this,this.state.buttonText)}
                 >
                   {this.state.buttonText}
                 </button>

@@ -12,6 +12,7 @@ class Store extends Component {
       cart: [],
       cartRaw: [],
       ord: [],
+      ordRaw: [],
       totalItems: 0,
       totalAmount: 0,
       term: "",
@@ -33,6 +34,7 @@ class Store extends Component {
     this.closeModal = this.closeModal.bind(this);
     this.handleTermChange = this.handleTermChange.bind(this);
     this.handleHomeSet = this.handleHomeSet.bind(this);
+    this.handleAction = this.handleAction.bind(this);
   }
   // Fetch Initial Set of Products from external API
   getProducts() {
@@ -48,10 +50,10 @@ class Store extends Component {
         if (
           JSON.stringify(this.state.cartRaw) != JSON.stringify(response.data)
         ) {
-          this.setState({cartRaw: response.data });
           response.data.forEach(dat => {
             this.handleAddToCart(dat, false);
           });
+          this.setState({ cartRaw: response.data });
         }
       })
       .catch(err => console.error(err));
@@ -59,7 +61,16 @@ class Store extends Component {
   getOrder() {
     fetch("http://localhost:3010/ord?no=" + this.props.number)
       .then(response => response.json())
-      .then(response => this.setState({ ord: response.data }))
+      .then(response => {
+        if (
+          JSON.stringify(this.state.ordRaw) != JSON.stringify(response.data)
+        ) {
+          response.data.forEach(dat => {
+            this.handleAddToOrder(dat, false);
+          });
+          this.setState({ ordRaw: response.data });
+        }
+      })
       .catch(err => console.error(err));
   }
 
@@ -135,6 +146,80 @@ class Store extends Component {
     );
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
+  }
+  
+  handleAction(action) {
+    console.log(action);
+    if(action=="สั่งซื้อ"){
+      let cartItem = this.state.cart;
+    let productID = selectedProducts.id;
+    let productQty = selectedProducts.quantity;
+    if (isdb) {
+      if (this.checkProduct(productID)) {
+        let index = cartItem.findIndex(x => x.id == productID);
+        fetch(
+          "http://localhost:3010/ord/up?no=" +
+            this.props.number +
+            '&food="' +
+            productID +
+            '"&num=' +
+            Number(cartItem[index].quantity + productQty)
+        ).catch(err => console.error(err));
+      } else {
+        fetch(
+          "http://localhost:3010/ord/add?no=" +
+            this.props.number +
+            '&food="' +
+            productID +
+            '"&num=' +
+            productQty
+        ).catch(err => console.error(err));
+      }
+      if (this.checkProduct(productID)) {
+        let index = cartItem.findIndex(x => x.id == productID);
+        cartItem[index].quantity = isdb
+          ? Number(cartItem[index].quantity) + Number(productQty)
+          : Number(productQty);
+        this.setState({
+          cart: cartItem
+        });
+      } else {
+        cartItem.push(selectedProducts);
+      }
+      this.setState({
+        ord: cartItem,
+        cartBounce: true
+      });
+    }
+    if (this.checkProduct(productID)) {
+      let index = cartItem.findIndex(x => x.id == productID);
+      cartItem[index].quantity = isdb
+        ? Number(cartItem[index].quantity) + Number(productQty)
+        : Number(productQty);
+      this.setState({
+        cart: cartItem
+      });
+    } else {
+      cartItem.push(selectedProducts);
+    }
+    this.setState({
+      cart: cartItem,
+      cartBounce: true
+    });
+    setTimeout(
+      function() {
+        this.setState({
+          cartBounce: false,
+          quantity: 1
+        });
+      }.bind(this),
+      1000
+    );
+    this.sumTotalItems(this.state.cart);
+    this.sumTotalAmount(this.state.cart);
+    }else if(action == "เก็บเงิน"){
+
+    }
   }
 
   handleRemoveProduct(id, e) {
@@ -216,6 +301,7 @@ class Store extends Component {
           removeProduct={this.handleRemoveProduct}
           handleSearch={this.handleSearch}
           handleMobileSearch={this.handleMobileSearch}
+          handleAction={this.handleAction}
           handleCategory={this.handleCategory}
           categoryTerm={this.state.category}
           updateQuantity={this.updateQuantity}

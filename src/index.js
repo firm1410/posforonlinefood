@@ -32,9 +32,16 @@ class App extends Component {
 
   render() {
     let setpin;
-    let store = <Store number={this.state.tab_no}/>;
+    let store = <Store number={this.state.tab_no} />;
     this.state.tab.map(tab => {
-      setpin = <SetPin number={this.state.tab_no} stat={tab.status} pin={tab.pin} page={this.handleLuncher}/>;
+      setpin = (
+        <SetPin
+          number={this.state.tab_no}
+          stat={tab.status}
+          pin={tab.pin}
+          page={this.handleLuncher}
+        />
+      );
     });
     return (
       <div className="container">

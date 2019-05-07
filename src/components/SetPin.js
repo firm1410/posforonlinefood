@@ -13,19 +13,21 @@ class SetPin extends Component {
         "grid__col grid__col--1-of-4 numberfield",
         "grid__col grid__col--1-of-4 numberfield",
         "grid__col grid__col--1-of-4 numberfield"
-      ],
+      ]
     };
     this.handleDelete = this.handleDelete.bind(this);
     this.handleNumnerField = this.handleNumnerField.bind(this);
   }
-  componentDidMount(){
-    if(this.props.stat=="available"){
-      this.setState({titletxt:<strong>กรุณากำหนดรหัสผ่าน</strong>});
-    }else if(this.props.stat=="customer"){
-      this.setState({titletxt:<strong>กรุณาพิมรหัสผ่านที่คนแรกกำหนดไว้</strong>});
+  componentDidMount() {
+    if (this.props.stat == "available") {
+      this.setState({ titletxt: <strong>กรุณากำหนดรหัสผ่าน</strong> });
+    } else if (this.props.stat == "customer") {
+      this.setState({
+        titletxt: <strong>กรุณาพิมรหัสผ่านที่คนแรกกำหนดไว้</strong>
+      });
     }
   }
-  
+
   handleDelete() {
     this.setState({
       enterCode: this.state.enterCode.substring(
@@ -47,7 +49,7 @@ class SetPin extends Component {
       "grid__col grid__col--1-of-4 numberfield active";
     if (lengthCode == 3) {
       // Check the PIN
-      if(this.props.stat =="available"){
+      if (this.props.stat == "available") {
         console.log(this.props.number);
         console.log(this.props.stat);
         fetch(
@@ -67,8 +69,7 @@ class SetPin extends Component {
         this.state.number = "grid__col grid__col--1-of-3 hide";
         this.state.titletxt = <strong>กำหนดรหัสผ่านสำเร็จ</strong>;
         this.props.page();
-
-      }else if (code == this.props.pin) {
+      } else if (code == this.props.pin) {
         // Right PIN!
 
         this.setState({
@@ -101,8 +102,6 @@ class SetPin extends Component {
           this.state.fields = "fields";
         }, 500);
       }
-    
-      
     }
   }
 
