@@ -44,11 +44,16 @@ class Store extends Component {
   getCart() {
     fetch("http://localhost:3010/cart?no=" + this.props.number)
       .then(response => response.json())
-      .then(response =>
-        response.data.forEach(dat => {
-          this.handleAddToCart(dat, false);
-        })
-      )
+      .then(response => {
+        if (
+          JSON.stringify(this.state.cartRaw) != JSON.stringify(response.data)
+        ) {
+          this.setState({cartRaw: response.data });
+          response.data.forEach(dat => {
+            this.handleAddToCart(dat, false);
+          });
+        }
+      })
       .catch(err => console.error(err));
   }
   getOrder() {
@@ -60,14 +65,10 @@ class Store extends Component {
 
   componentWillMount() {
     this.getProducts();
-    this.getCart();
     this.getOrder();
   }
-  componentDidMount() {
-    let carthold = this.state.cartRaw;
-    carthold.map(set => {
-      this.handleAddToCart.push(set, false);
-    });
+  componentDidUpdate() {
+    this.getCart();
   }
   // Search by Keyword
   handleSearch(event) {
@@ -108,11 +109,11 @@ class Store extends Component {
         ).catch(err => console.error(err));
       }
     }
-    console.log(selectedProducts);
     if (this.checkProduct(productID)) {
       let index = cartItem.findIndex(x => x.id == productID);
-      cartItem[index].quantity =
-        Number(cartItem[index].quantity) + Number(productQty);
+      cartItem[index].quantity = isdb
+        ? Number(cartItem[index].quantity) + Number(productQty)
+        : Number(productQty);
       this.setState({
         cart: cartItem
       });
@@ -134,7 +135,6 @@ class Store extends Component {
     );
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
-    console.log(this.state.cart);
   }
 
   handleRemoveProduct(id, e) {
