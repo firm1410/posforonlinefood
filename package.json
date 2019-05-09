@@ -24,6 +24,7 @@
     "mssql": "^4.3.1",
     "multer": "^1.4.1",
     "mysql": "^2.16.0",
+    "node-wifi-scanner": "^1.1.1",
     "path": "^0.12.7",
     "prop-types": "^15.5.10",
     "react": "^16.0.0",

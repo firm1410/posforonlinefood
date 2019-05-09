@@ -59,17 +59,17 @@ class Header extends Component {
       }
     }
   }
-  addToOrder(action,e) {
-    this.props.handleAction(action,e);
+  addToOrder() {
+    this.props.handleAction(this.state.buttonText);
 
     this.setState(
       {
-        buttonText: action + "สำเร็จ"
+        buttonText: this.state.buttonText + "สำเร็จ"
       },
       function() {
         setTimeout(() => {
           this.setState({
-            buttonText: action
+            buttonText: this.state.buttonText
           });
         }, 1000);
       }
@@ -240,7 +240,7 @@ class Header extends Component {
                 <button
                   type="button"
                   className={this.state.cart.length > 0 ? " " : "disabled"}
-                  onClick={this.addToOrder.bind(this, this.state.buttonText)}
+                  onClick={this.addToOrder.bind(this)}
                 >
                   {this.state.buttonText}
                 </button>

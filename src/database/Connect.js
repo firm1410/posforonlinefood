@@ -27,7 +27,8 @@ db.connect(err => {
 app.use(cors());
 
 // Select posts
-app.get("/food", (req, res) => {  //getfood
+app.get("/food", (req, res) => {
+  //getfood
   let sql =
     "SELECT f.food_id AS id,f.food_name AS name,f.food_name_alt AS nameAlt,f.food_category_1 AS category1,f.food_category_2 AS category2,f.food_category_3 AS category3,f.food_price AS price,f.food_discount AS discount,concat('http://localhost:3010/uploads/',f.food_img) AS img FROM foods AS f";
   db.query(sql, (err, results) => {
@@ -41,7 +42,8 @@ app.get("/food", (req, res) => {  //getfood
     }
   });
 });
-app.get("/tab", (req, res) => {//get table
+app.get("/tab", (req, res) => {
+  //get table
   let { no } = req.query;
   let sql =
     "SELECT table_no AS number,table_status AS status,table_pin AS pin FROM tab WHERE table_no=" +
@@ -58,11 +60,21 @@ app.get("/tab", (req, res) => {//get table
   });
 });
 
-app.get("/tab/add", (req, res) => { //add table
+app.get("/tab/add", (req, res) => {
+  //add table
   let { no, status, pin } = req.query;
   let insert =
-    "INSERT INTO tab_log (table_no,table_status) VALUES(" +no +"," +status +"); UPDATE tab SET table_pin = " +pin +",table_status = "+status+" WHERE table_no ="+ no;
-  db.query(insert,[1,2], (err, results) => {
+    "INSERT INTO tab_log (table_no,table_status) VALUES(" +
+    no +
+    "," +
+    status +
+    "); UPDATE tab SET table_pin = " +
+    pin +
+    ",table_status = " +
+    status +
+    " WHERE table_no =" +
+    no;
+  db.query(insert, [1, 2], (err, results) => {
     if (err) {
       return res.send(err);
     } else {
@@ -71,10 +83,12 @@ app.get("/tab/add", (req, res) => { //add table
   });
 });
 
-app.get("/cart", (req, res) => { //get cart
+app.get("/cart", (req, res) => {
+  //get cart
   let { no } = req.query;
   let sql =
-    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,cart.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN cart ON foods.food_id=cart.food_id WHERE table_no=" + no;
+    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,cart.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN cart ON foods.food_id=cart.food_id WHERE table_no=" +
+    no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -86,10 +100,18 @@ app.get("/cart", (req, res) => { //get cart
     }
   });
 });
-app.get("/cart/add", (req, res) => { //add cart
+app.get("/cart/add", (req, res) => {
+  //add cart
   let { no, food, num } = req.query;
   let sql =
-    "INSERT INTO cart (table_no,food_id,order_quantity) VALUES(" +no +"," +food +","+num+")";
+    "INSERT INTO cart (table_no,food_id,order_quantity) VALUES (" +
+    no +
+    "," +
+    food +
+    "," +
+    num +
+    ") ON DUPLICATE KEY UPDATE order_quantity=order_quantity+" +
+    num;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -102,24 +124,10 @@ app.get("/cart/add", (req, res) => { //add cart
   });
 });
 
-app.get("/cart/up", (req, res) => { //update cart
-  let {  no,food, num } = req.query;
-  let sql ="UPDATE cart SET order_quantity = "+num+" WHERE food_id ="+ food+" AND table_no ="+no;
-  db.query(sql, (err, results) => {
-    if (err) {
-      return res.send(err);
-    } else {
-      const tab = res.json({
-        data: results
-      });
-      return tab;
-    }
-  });
-});
-app.get("/cart/del", (req, res) => { //del cart
+app.get("/cart/del", (req, res) => {
+  //del cart
   let { no, food } = req.query;
-  let sql =
-    "DELETE FROM cart WHERE table_no=" +no +" AND food_id =" +food;
+  let sql = "DELETE FROM cart WHERE table_no=" + no + " AND food_id =" + food;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -132,11 +140,10 @@ app.get("/cart/del", (req, res) => { //del cart
   });
 });
 
-
-app.get("/cart/ord", (req, res) => { //del cart
-  let { no, food } = req.query;
-  let sql =
-    "DELETE FROM cart WHERE table_no=" +no ;
+app.get("/cart/ord", (req, res) => {
+  //del cart
+  let { no } = req.query;
+  let sql = "DELETE FROM cart WHERE table_no=" + no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -149,10 +156,12 @@ app.get("/cart/ord", (req, res) => { //del cart
   });
 });
 
-app.get("/ord", (req, res) => { //get order
+app.get("/ord", (req, res) => {
+  //get order
   let { no } = req.query;
   let sql =
-    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,t.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN transaction AS t ON foods.food_id=t.food_id WHERE table_no=" + no;
+    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,t.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN transaction AS t ON foods.food_id=t.food_id WHERE table_no=" +
+    no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -164,10 +173,22 @@ app.get("/ord", (req, res) => { //get order
     }
   });
 });
-app.get("/ord/add", (req, res) => { //add order
-  let { no,food, num } = req.query;
+app.get("/ord/add", (req, res) => {
+  //add order
+  let { no, food, num } = req.query;
   let sql =
-  "INSERT INTO tran_log (food_id,order_quantity) VALUES(" +food +"," +num +");INSERT INTO transaction (table_no,food_id,order_quantity) VALUES(" +no +"," +food +","+num+")";
+    "INSERT INTO tran_log (food_id,order_quantity) VALUES(" +
+    food +
+    "," +
+    num +
+    "); INSERT INTO transaction (table_no,food_id,order_quantity) VALUES (" +
+    no +
+    "," +
+    food +
+    "," +
+    num +
+    ") ON DUPLICATE KEY UPDATE order_quantity=order_quantity+" +
+    num;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -180,26 +201,10 @@ app.get("/ord/add", (req, res) => { //add order
   });
 });
 
-app.get("/ord/up", (req, res) => { //add order
-  let { no,food, numOld,numNew } = req.query;
-  let sql =
-  "UPDATE transaction SET order_quantity = "+Number(numOld)+Number(numNew)+" WHERE food_id ="+ food+" AND table_no ="+no+";INSERT INTO transaction (table_no,food_id,order_quantity) VALUES(" +no +"," +food +","+numNew+")";
-  db.query(sql, (err, results) => {
-    if (err) {
-      return res.send(err);
-    } else {
-      const tab = res.json({
-        data: results
-      });
-      return tab;
-    }
-  });
-});
-
-app.get("/ord/del", (req, res) => { //del cart
+app.get("/ord/del", (req, res) => {
+  //del cart
   let { no, food } = req.query;
-  let sql =
-    "DELETE FROM cart WHERE table_no=" +no;
+  let sql = "DELETE FROM cart WHERE table_no=" + no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -209,6 +214,20 @@ app.get("/ord/del", (req, res) => { //del cart
       });
       return tab;
     }
+  });
+});
+const scanner = require('node-wifi-scanner');
+
+app.get("/wifi", (req, res) => {
+  scanner.scan((err, networks) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const tab = res.json({
+      data: networks
+    });
+    return tab;
   });
 });
 

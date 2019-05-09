@@ -12,7 +12,6 @@ class Store extends Component {
       cart: [],
       cartRaw: [],
       ord: [],
-      ordRaw: [],
       totalItems: 0,
       totalAmount: 0,
       term: "",
@@ -50,6 +49,7 @@ class Store extends Component {
         if (
           JSON.stringify(this.state.cartRaw) != JSON.stringify(response.data)
         ) {
+          this.setState({ cart: [] });
           response.data.forEach(dat => {
             this.handleAddToCart(dat, false);
           });
@@ -62,13 +62,8 @@ class Store extends Component {
     fetch("http://localhost:3010/ord?no=" + this.props.number)
       .then(response => response.json())
       .then(response => {
-        if (
-          JSON.stringify(this.state.ordRaw) != JSON.stringify(response.data)
-        ) {
-          response.data.forEach(dat => {
-            this.handleAddToOrder(dat, false);
-          });
-          this.setState({ ordRaw: response.data });
+        if (JSON.stringify(this.state.ord) != JSON.stringify(response.data)) {
+          this.setState({ ord: response.data });
         }
       })
       .catch(err => console.error(err));
@@ -76,10 +71,10 @@ class Store extends Component {
 
   componentWillMount() {
     this.getProducts();
-    //this.getOrder();
   }
   componentDidUpdate() {
     this.getCart();
+    this.getOrder();
   }
   // Search by Keyword
   handleSearch(event) {
@@ -99,26 +94,15 @@ class Store extends Component {
     let productID = selectedProducts.id;
     let productQty = selectedProducts.quantity;
     if (isdb) {
-      if (this.checkProduct(productID)) {
-        let index = cartItem.findIndex(x => x.id == productID);
-        fetch(
-          "http://localhost:3010/cart/up?no=" +
-            this.props.number +
-            '&food="' +
-            productID +
-            '"&num=' +
-            Number(cartItem[index].quantity + productQty)
-        ).catch(err => console.error(err));
-      } else {
-        fetch(
-          "http://localhost:3010/cart/add?no=" +
-            this.props.number +
-            '&food="' +
-            productID +
-            '"&num=' +
-            productQty
-        ).catch(err => console.error(err));
-      }
+      let index = cartItem.findIndex(x => x.id == productID);
+      fetch(
+        "http://localhost:3010/cart/add?no=" +
+          this.props.number +
+          '&food="' +
+          productID +
+          '"&num=' +
+          Number(productQty)
+      ).catch(err => console.error(err));
     }
     if (this.checkProduct(productID)) {
       let index = cartItem.findIndex(x => x.id == productID);
@@ -148,65 +132,30 @@ class Store extends Component {
     this.sumTotalAmount(this.state.cart);
   }
 
-  handleAddToOrder() {}
-  handleAction(action,e) {
-    e.preventDefault();
+  handleAction(action) {
     console.log(action);
     if (action == "สั่งซื้อ") {
       let cartItem = this.state.cart;
       this.state.cart.map(selectedProducts => {
         let productID = selectedProducts.id;
         let productQty = selectedProducts.quantity;
-        fetch("http://localhost:3010/ord?no=" + this.props.number)
-          .then(res => res.json())
-          .then(res => {
-            if (res.data ==[]) {
-              fetch(
-                "http://localhost:3010/ord/add?no=" +
-                  this.props.number +
-                  '&food="' +
-                  productID +
-                  '"&num=' +
-                  productQty
-              ).catch(err => console.error(err));
-              cartItem.push(selectedProducts);
-              console.log("new");
-            } else {
-              res.data.forEach(dat => {
-                console.log("old");
-                if (productID == dat.id) {
-                  let index = cartItem.findIndex(x => x.id == productID);
-                  fetch(
-                    "http://localhost:3010/ord/up?no=" +
-                      this.props.number +
-                      '&food="' +
-                      productID +
-                      '"&numOld=' +
-                      Number(cartItem[index].quantity) +
-                      '"&numNew=' +
-                      Number(productQty)
-                  ).catch(err => console.error(err));
-                  cartItem[index].quantity =
-                    Number(cartItem[index].quantity) + Number(productQty);
-                } else {
-                  fetch(
-                    "http://localhost:3010/ord/add?no=" +
-                      this.props.number +
-                      '&food="' +
-                      productID +
-                      '"&num=' +
-                      productQty
-                  ).catch(err => console.error(err));
-                  cartItem.push(selectedProducts);
-                }
-              });
-            }
-            this.setState({
-              ord: cartItem
-            });
-          })
-          .catch(err => console.error(err));
+        fetch(
+          "http://localhost:3010/ord/add?no=" +
+            this.props.number +
+            '&food="' +
+            productID +
+            '"&num=' +
+            productQty
+        ).catch(err => console.error(err));
+        cartItem.push(selectedProducts);
       });
+      this.setState({
+        ord: cartItem,
+        cart: []
+      });
+      fetch("http://localhost:3010/cart/ord?no=" + this.props.number).catch(
+        err => console.error(err)
+      );
     } else if (action == "เก็บเงิน") {
     }
   }
@@ -224,8 +173,7 @@ class Store extends Component {
       "http://localhost:3010/cart/del?no=" +
         this.props.number +
         '&food="' +
-        id +
-        '"'
+        id
     ).catch(err => console.error(err));
     e.preventDefault();
   }
@@ -287,6 +235,7 @@ class Store extends Component {
           total={this.state.totalAmount}
           totalItems={this.state.totalItems}
           cartItems={this.state.cart}
+          ordItem={this.state.ord}
           removeProduct={this.handleRemoveProduct}
           handleSearch={this.handleSearch}
           handleMobileSearch={this.handleMobileSearch}
