@@ -59,19 +59,19 @@ class Header extends Component {
       }
     }
   }
-  addToOrder(action) {
-    this.props.handleAction(action);
+  addToOrder(action,e) {
+    this.props.handleAction(action,e);
 
     this.setState(
       {
-        buttonText: this.state.buttonText + "สำเร็จ"
+        buttonText: action + "สำเร็จ"
       },
       function() {
         setTimeout(() => {
           this.setState({
             buttonText: action
           });
-        }, 3500);
+        }, 1000);
       }
     );
   }
@@ -98,7 +98,6 @@ class Header extends Component {
   }
   render() {
     let cartItems;
-    console.log(this.state.cart);
     cartItems = this.state.cart.map(product => {
       return (
         <li className="cart-item" key={product.name}>
@@ -241,7 +240,7 @@ class Header extends Component {
                 <button
                   type="button"
                   className={this.state.cart.length > 0 ? " " : "disabled"}
-                  onClick={this.addToOrder.bind(this,this.state.buttonText)}
+                  onClick={this.addToOrder.bind(this, this.state.buttonText)}
                 >
                   {this.state.buttonText}
                 </button>

@@ -152,7 +152,7 @@ app.get("/cart/ord", (req, res) => { //del cart
 app.get("/ord", (req, res) => { //get order
   let { no } = req.query;
   let sql =
-    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,cart.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN transaction ON foods.food_id=cart.food_id WHERE table_no=" + no;
+    "SELECT concat('http://localhost:3010/uploads/',foods.food_img) AS image,foods.food_name AS name,foods.food_price AS price,foods.food_id AS id,t.order_quantity AS quantity,foods.food_category_1 AS category FROM foods INNER JOIN transaction AS t ON foods.food_id=t.food_id WHERE table_no=" + no;
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -181,9 +181,9 @@ app.get("/ord/add", (req, res) => { //add order
 });
 
 app.get("/ord/up", (req, res) => { //add order
-  let { no,food, num } = req.query;
+  let { no,food, numOld,numNew } = req.query;
   let sql =
-  "UPDATE transaction SET order_quantity = "+num+" WHERE food_id ="+ food+" AND table_no ="+no;
+  "UPDATE transaction SET order_quantity = "+Number(numOld)+Number(numNew)+" WHERE food_id ="+ food+" AND table_no ="+no+";INSERT INTO transaction (table_no,food_id,order_quantity) VALUES(" +no +"," +food +","+numNew+")";
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);

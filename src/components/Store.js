@@ -76,7 +76,7 @@ class Store extends Component {
 
   componentWillMount() {
     this.getProducts();
-    this.getOrder();
+    //this.getOrder();
   }
   componentDidUpdate() {
     this.getCart();
@@ -147,78 +147,67 @@ class Store extends Component {
     this.sumTotalItems(this.state.cart);
     this.sumTotalAmount(this.state.cart);
   }
-  
-  handleAction(action) {
-    console.log(action);
-    if(action=="สั่งซื้อ"){
-      let cartItem = this.state.cart;
-    let productID = selectedProducts.id;
-    let productQty = selectedProducts.quantity;
-    if (isdb) {
-      if (this.checkProduct(productID)) {
-        let index = cartItem.findIndex(x => x.id == productID);
-        fetch(
-          "http://localhost:3010/ord/up?no=" +
-            this.props.number +
-            '&food="' +
-            productID +
-            '"&num=' +
-            Number(cartItem[index].quantity + productQty)
-        ).catch(err => console.error(err));
-      } else {
-        fetch(
-          "http://localhost:3010/ord/add?no=" +
-            this.props.number +
-            '&food="' +
-            productID +
-            '"&num=' +
-            productQty
-        ).catch(err => console.error(err));
-      }
-      if (this.checkProduct(productID)) {
-        let index = cartItem.findIndex(x => x.id == productID);
-        cartItem[index].quantity = isdb
-          ? Number(cartItem[index].quantity) + Number(productQty)
-          : Number(productQty);
-        this.setState({
-          cart: cartItem
-        });
-      } else {
-        cartItem.push(selectedProducts);
-      }
-      this.setState({
-        ord: cartItem,
-        cartBounce: true
-      });
-    }
-    if (this.checkProduct(productID)) {
-      let index = cartItem.findIndex(x => x.id == productID);
-      cartItem[index].quantity = isdb
-        ? Number(cartItem[index].quantity) + Number(productQty)
-        : Number(productQty);
-      this.setState({
-        cart: cartItem
-      });
-    } else {
-      cartItem.push(selectedProducts);
-    }
-    this.setState({
-      cart: cartItem,
-      cartBounce: true
-    });
-    setTimeout(
-      function() {
-        this.setState({
-          cartBounce: false,
-          quantity: 1
-        });
-      }.bind(this),
-      1000
-    );
-    this.sumTotalItems(this.state.cart);
-    this.sumTotalAmount(this.state.cart);
-    }else if(action == "เก็บเงิน"){
 
+  handleAddToOrder() {}
+  handleAction(action,e) {
+    e.preventDefault();
+    console.log(action);
+    if (action == "สั่งซื้อ") {
+      let cartItem = this.state.cart;
+      this.state.cart.map(selectedProducts => {
+        let productID = selectedProducts.id;
+        let productQty = selectedProducts.quantity;
+        fetch("http://localhost:3010/ord?no=" + this.props.number)
+          .then(res => res.json())
+          .then(res => {
+            if (res.data ==[]) {
+              fetch(
+                "http://localhost:3010/ord/add?no=" +
+                  this.props.number +
+                  '&food="' +
+                  productID +
+                  '"&num=' +
+                  productQty
+              ).catch(err => console.error(err));
+              cartItem.push(selectedProducts);
+              console.log("new");
+            } else {
+              res.data.forEach(dat => {
+                console.log("old");
+                if (productID == dat.id) {
+                  let index = cartItem.findIndex(x => x.id == productID);
+                  fetch(
+                    "http://localhost:3010/ord/up?no=" +
+                      this.props.number +
+                      '&food="' +
+                      productID +
+                      '"&numOld=' +
+                      Number(cartItem[index].quantity) +
+                      '"&numNew=' +
+                      Number(productQty)
+                  ).catch(err => console.error(err));
+                  cartItem[index].quantity =
+                    Number(cartItem[index].quantity) + Number(productQty);
+                } else {
+                  fetch(
+                    "http://localhost:3010/ord/add?no=" +
+                      this.props.number +
+                      '&food="' +
+                      productID +
+                      '"&num=' +
+                      productQty
+                  ).catch(err => console.error(err));
+                  cartItem.push(selectedProducts);
+                }
+              });
+            }
+            this.setState({
+              ord: cartItem
+            });
+          })
+          .catch(err => console.error(err));
+      });
+    } else if (action == "เก็บเงิน") {
     }
   }
 
