@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import Store from "./components/Store";
-import SetPin from "./components/SetPin";
+import Pos from "./components/Pos";
 import "./scss/style.scss";
 
 class App extends Component {
@@ -31,22 +30,9 @@ class App extends Component {
   }
 
   render() {
-    let setpin;
-    let store = <Store number={this.state.tab_no} />;
-    this.state.tab.map(tab => {
-      setpin = (
-        <SetPin
-          number={this.state.tab_no}
-          stat={tab.status}
-          pin={tab.pin}
-          page={this.handleLuncher}
-        />
-      );
-    });
     return (
       <div className="container">
-        {this.state.isSetPinPage ? setpin : null}
-        {this.state.isStorePage ? store : null}
+        <Pos/>
       </div>
     );
   }
