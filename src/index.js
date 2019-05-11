@@ -7,32 +7,25 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tab_no: "1",
-      tab: [],
-      isSetPinPage: true,
-      isStorePage: false
+      tab: []
     };
-    this.handleLuncher = this.handleLuncher.bind(this);
   }
   componentDidMount() {
     this.getTable();
   }
 
   getTable() {
-    fetch("http://localhost:3010/tab?no=" + this.state.tab_no)
+    fetch("http://localhost:3012/tab")
       .then(response => response.json())
       .then(response => this.setState({ tab: response.data }))
       .catch(err => console.error(err));
   }
 
-  handleLuncher() {
-    this.setState({ isSetPinPage: false, isStorePage: true });
-  }
-
   render() {
+    console.log(this.state.tab);
     return (
       <div className="container">
-        <Pos/>
+        <Pos table={this.state.tab}/>
       </div>
     );
   }

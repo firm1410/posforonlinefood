@@ -44,10 +44,8 @@ app.get("/food", (req, res) => {
 });
 app.get("/tab", (req, res) => {
   //get table
-  let { no } = req.query;
   let sql =
-    "SELECT table_no AS number,table_status AS status,table_pin AS pin FROM tab WHERE table_no=" +
-    no;
+    "SELECT table_no AS number,table_status AS status,table_pin AS pin FROM tab";
   db.query(sql, (err, results) => {
     if (err) {
       return res.send(err);
@@ -282,6 +280,6 @@ app.post("/upload", (req, res) => {
   });
 });
 
-app.listen(3010, () => {
-  console.log("to the port 3010");
+app.listen(3012, () => {
+  console.log("to the port 3012");
 });
