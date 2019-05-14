@@ -1,6 +1,8 @@
 import React, { Component } from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import ReactDOM from "react-dom";
 import Pos from "./components/Pos";
+import { Container } from "react-bootstrap";
 import "./scss/style.scss";
 
 class App extends Component {
@@ -10,23 +12,30 @@ class App extends Component {
       tab: []
     };
   }
+  
   componentDidMount() {
+    this.getTable();
+  }
+  componentDidUpdate() {
     this.getTable();
   }
 
   getTable() {
     fetch("http://localhost:3012/tab")
       .then(response => response.json())
-      .then(response => this.setState({ tab: response.data }))
+      .then(response => {if (response.data!=this.state.tab){
+        this.setState({ tab: response.data })
+      }
+      })
       .catch(err => console.error(err));
   }
 
   render() {
-    console.log(this.state.tab);
     return (
-      <div className="container">
+      <Container>
         <Pos table={this.state.tab}/>
-      </div>
+      </Container>
+      
     );
   }
 }

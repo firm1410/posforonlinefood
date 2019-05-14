@@ -1,46 +1,125 @@
 import React, { Component } from "react";
-import { Button, Card, ListGroup } from "react-bootstrap/Button";
-import CSSTransitionGroup from "react-transition-group/CSSTransitionGroup";
+import {
+  Button,
+  Navbar,
+  Nav,
+  Row,
+  Col,
+  Table,
+  OverlayTrigger,
+  Tooltip
+} from "react-bootstrap";
 
 class Pos extends Component {
   constructor() {
     super();
-    this.state = {};
+    this.state = { no: "G1", ord: [] };
     this.chooseTable = this.chooseTable.bind(this);
+    this.clickbill = this.clickbill.bind(this);
   }
-  componentDidMount() {}
+  componentDidUpdate() {
+    this.getorder(this.state.no);
+  }
 
-  chooseTable() {}
+  getorder(num) {
+    fetch("http://localhost:3012/ord?no=" + num)
+      .then(response => response.json())
+      .then(response => {
+        if (response.data != this.state.tab) {
+          this.setState({ ord: response.data });
+        }
+      })
+      .catch(err => console.error(err));
+  }
+
+  chooseTable(num) {
+    this.setState({ no: num });
+  }
+  clickbill() {
+    fetch("http://localhost:3012/ord/del?no=" + "'"+this.state.no+"'").then(response =>
+      response.json()
+    );
+
+    fetch(
+      "http://localhost:3010/tab/add?no=" +
+        "'"+this.state.no +"'"+
+        '&status="available"&pin=null'
+    ).catch(err => console.error(err));
+  }
   render() {
     let cartItems;
     cartItems = this.props.table.map(table => {
+      let color;
+      switch (table.status) {
+        case "customer":
+          color = "outline-warning";
+          break;
+        case "available":
+          color = "outline-secondary";
+          break;
+        case "bill":
+          color = "outline-primary";
+          break;
+        default:
+          color = "null";
+      }
       return (
-        <Card style={{ width: "18rem" }} key={table.number}>
-          <Card.Header>{table.number}</Card.Header>
-          <ListGroup variant="flush">
-            <ListGroup.Item>{table.status}</ListGroup.Item>
-            <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-            <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
-          </ListGroup>
-        </Card>
+        <Col xs="3" key={table.number}>
+          <Button
+            variant={color}
+            onClick={this.chooseTable.bind(this, table.number)}
+          >
+            {table.number}:{table.status}
+          </Button>
+        </Col>
       );
     });
-    let view = (
-      <CSSTransitionGroup
-        transitionName="fadeIn"
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={300}
-        component="div"
-        className="card"
-      >
-        {cartItems}
-      </CSSTransitionGroup>
+
+    let tabItems;
+    tabItems = this.state.ord.map(ord => {
+      return (
+        <tr key={ord.name}>
+          <td>{ord.name}</td>
+          <td>{Number(ord.price) * Number(ord.quantity)}</td>
+          <td>{ord.quantity}</td>
+        </tr>
+      );
+    });
+    let tab = (
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th align="center">name</th>
+            <th align="center">price</th>
+            <th align="center">quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tabItems}
+          <tr>
+            <td colSpan="3" align="center">
+              <Button variant="dark" onClick={this.clickbill.bind(this)}>
+                Print Order
+              </Button>
+            </td>
+          </tr>
+        </tbody>
+      </Table>
     );
     return (
       <div className="pos">
-        <Button variant="outline-primary">Primary</Button>
-        <div className="tab" />
-        <div className="order" />
+        <Row>
+          <Col xs="6">
+            <div className="tab">
+              <Row>{cartItems}</Row>
+            </div>
+          </Col>
+          <Col xs="6">
+            <div className="order">
+              <Row>{tab}</Row>
+            </div>
+          </Col>
+        </Row>
       </div>
     );
   }
